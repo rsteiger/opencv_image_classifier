@@ -4,7 +4,6 @@
 
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
-#include <boost/smart_ptr/shared_ptr.hpp>
 
 #include "serialize_cvmat.h"
 
@@ -23,18 +22,23 @@ struct visual_vocabulary {
       }
    };
 
-   settings my_settings;
    cv::Mat centroids;
 
+   protected:
+   settings my_settings;
+
    friend class boost::serialization::access;
+
    template<class archive>
    void serialize(archive &ar, const unsigned int version) {
       ar &my_settings;
       ar &centroids;
    }
 
+   public:
    visual_vocabulary(const cv::Mat &descriptors, const settings &s);
-   visual_vocabulary(const visual_vocabulary &v);
+   visual_vocabulary(const visual_vocabulary &v) { }
+   visual_vocabulary() { }
 };
 
 struct visual_vocabulary_factory {

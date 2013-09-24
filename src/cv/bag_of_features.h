@@ -22,13 +22,13 @@ class bag_of_features {
       struct settings {
          // expected squared distance between visual word and associated visual
          // vocab used for soft feature assignment
-         unsigned int kernel_distance_squared = 1800;  
+         float kernel_distance_squared = 0.25f;  
 
          // whether or not soft feature assignment is used
          bool soft_kernel = false;
 
          // how many spatial pyramid levels are used
-         int spatial_pyramid_depth = 2;
+         int spatial_pyramid_depth = 1;
 
          friend class boost::serialization::access;
          template<class archive>
@@ -38,11 +38,6 @@ class bag_of_features {
             ar &spatial_pyramid_depth;
          }
       };
-
-      // Computes the feature vector for a set of features
-      std::vector<double> feature_vector(const std::vector<cv::KeyPoint>
-            &features, const cv::Mat &descriptors) const;
-
    protected:
       settings settings;
       visual_vocabulary vocabulary;
@@ -59,7 +54,7 @@ class bag_of_features {
       cv::Mat hard_assign(const cv::Mat &point) const;
 
       // gets the size of the spatial pyramid representation
-      int pyramid_size(int depth) const { return ((1 << (2 * depth) - 1)) / 3; }
+      int pyramid_size(int depth) const { return ((1 << (2 * depth)) - 1) / 3; }
       int pyramid_level_size(int depth) const { return 1 << depth; }
 
       // gets the weight of a spatial pyramid level
@@ -68,4 +63,13 @@ class bag_of_features {
          return 1.0 / (1 << (settings.spatial_pyramid_depth - depth + 1));
       }
 
+   public:
+      void set_vocabulary(const visual_vocabulary &vv) { vocabulary = vv; }
+      void set_settings(const struct settings &s) { settings = s; }
+
+      // Computes the feature vector for a set of features
+      cv::Mat mat_feature_vector(const std::vector<cv::KeyPoint>
+            &features, const cv::Mat &descriptors) const;
+      std::vector<double> feature_vector(const std::vector<cv::KeyPoint>
+            &features, const cv::Mat &descriptors) const;
 };

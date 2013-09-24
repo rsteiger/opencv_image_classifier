@@ -81,17 +81,28 @@ vector<double> bag_of_features::feature_vector(const vector<cv::KeyPoint>
 
    // For each feature, add its contribution to the histogram
    for (int feature_num = 0; feature_num < descriptors.rows; feature_num++) {
-      cv::Mat normalized_weights, feature_weight, pyramid_weight;
+      cv::Mat feature_weight = soft_assign(descriptors.row(feature_num));
 
-      feature_weight = soft_assign(descriptors.row(feature_num));
-
-      std::transform(image_histogram.begin(), image_histogram.end(), // input 1
-            normalized_weights.begin<double>(),          // input 2
+      std::transform(feature_weight.begin<double>(),     // input 1
+            feature_weight.end<double>(),
+            image_histogram.begin(),                     // input 2
             image_histogram.begin(),                     // output
             std::plus<double>());                        // operator
    }
+
+   // TODO: Add contribution to each of the spatial histograms
 
    cv::normalize(image_histogram, image_histogram, image_histogram.size(), cv::NORM_L1);
    return image_histogram;
 }
 
+cv::Mat bag_of_features::mat_feature_vector(const vector<cv::KeyPoint>
+      &features, const cv::Mat &descriptors) const {
+   std::vector<double> fv(feature_vector(features, descriptors));
+   
+   cv::Mat output(1, fv.size(), CV_32F);
+   for (int i = 0; i < fv.size(); i++) {
+      output.at<float>(0, i) = fv[i];
+   }
+   return output;
+}

@@ -9,12 +9,13 @@
  * as published by Sam Hocevar. See http://www.wtfpl.net/ for more details.
  */
 
+#include <fstream>
+
 #include <opencv2/core/core.hpp> // Mat
 #include <opencv2/highgui/highgui.hpp> // imread
 #include <opencv2/nonfree/features2d.hpp> // SURF
 
 #include "cv/visual_vocabulary.h"
-#include "cv/bag_of_features.h"
 #include "files.hpp"
 
 using namespace std;
@@ -27,7 +28,7 @@ void usage(const string &program);
  * compiled into a visual vocabulary.
  */
 int main(int argc, char **argv) {
-   if (argc != 2) { usage(argv[0]); return 0; }
+   if (argc < 2 || argc > 3) { usage(argv[0]); return 0; }
 
    // Get all files in directory recursively
    list<string> images = get_files_recursive(argv[1], ".png");
@@ -50,11 +51,20 @@ int main(int argc, char **argv) {
 
    // Generate a visual vocabulary
    visual_vocabulary vocab = vv_fact.compute_visual_vocabulary(visual_vocabulary::settings());
+
+   // Save the visual vocabulary
+   if (argc > 2) {
+      std::fstream fs;
+      fs.open(argv[2], std::fstream::out);
+
+      boost::archive::text_oarchive oa(fs);
+      oa << vocab;
+   }
 }
 
 
 // Display usage information
 void usage(const string &program) {
-   cout << "Usage: " << program << " path/to/images" << endl;
+   cout << "Usage: " << program << " path/to/images [output.vv]" << endl;
 }
 
