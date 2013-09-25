@@ -55,14 +55,14 @@ expected to have the layout:
 
 Along with the visual vocabulary to train a bag-of-words classifier.
 
-   $> classifier directory/with/images vocab.vv [classifier.cls]
+    $> classifier directory/with/images vocab.vv [classifier.cls]
 
 The last program `classify` uses a visual vocabulary and a classifier to
 determine the class of an unknown image.
 
-   $> classify mysteryimage.png vocab.vv classifier.cls
-   5
-   $>
+    $> classify mysteryimage.png vocab.vv classifier.cls
+    5
+    $>
 
 It prints out a number corresponding to the internal representation of the
 determined class.

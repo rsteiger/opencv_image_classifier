@@ -14,8 +14,8 @@ visual_vocabulary::visual_vocabulary(const cv::Mat &descriptors, const
          cv::TermCriteria(              // When to stop the algorithm:
             CV_TERMCRIT_ITER |          //   after a desired number of iterations, or
             CV_TERMCRIT_EPS,            //   after a desired level of accuracy
-            0.0001f,                     // accuracy
-            10000),                     // number of iterations
+            100,                        // number of iterations
+            0.001),                     // desired accuracy
          5,                             // The number of times the algorithm is attempted
          cv::KMEANS_PP_CENTERS,         // Efficient initial labeling criteria
          centroids);                    // The output centers 
