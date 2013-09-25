@@ -60,8 +60,8 @@ struct classifier {
       train();
    }
 
-   float classify(const std::vector<double> &vector);
-   std::vector<float> classify(const cv::Mat &samples);
+   float classify(const std::vector<double> &vector) const;
+   std::vector<float> classify(const cv::Mat &samples) const;
 };
 
 struct classifier_factory {

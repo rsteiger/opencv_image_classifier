@@ -1,5 +1,5 @@
 /**
- * OpenCV visual vocabulary generator
+ * ImClass visual vocabulary generator
  *
  * Richie Steigerwald
  *

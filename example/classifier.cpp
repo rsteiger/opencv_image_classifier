@@ -47,31 +47,6 @@ map<string, float> image::labels;
 float image::max_label = 0;
 
 /**
- * This function generates the visual vocabulary using every feature
- * detected in a list of images.
- */
-visual_vocabulary generate_visual_vocab(const list<string> &images) {
-   visual_vocabulary_factory vv_fact; 
-   cv::SurfFeatureDetector detector(200);
-   cv::SurfDescriptorExtractor extractor;
-
-   vector<cv::KeyPoint> keypoints;
-   cv::Mat descriptors;
-
-   // Compute features for each image and add to the descriptor list
-   for (list<string>::const_iterator image = images.begin(); image != images.end(); image++) {
-      cv::Mat grayscale_image = cv::imread(*image, CV_LOAD_IMAGE_GRAYSCALE);
-
-      detector.detect(grayscale_image, keypoints);
-      extractor.compute(grayscale_image, keypoints, descriptors);
-      vv_fact.add_descriptors(descriptors);
-   }
-
-   // Generate a visual vocabulary
-   return vv_fact.compute_visual_vocabulary(visual_vocabulary::settings());
-}
-
-/**
  * This function trains a classifier using a list of images and a list of image labels
  */
 classifier generate_classifier(const visual_vocabulary &vocab, const list<image> &images) {
@@ -97,28 +72,18 @@ classifier generate_classifier(const visual_vocabulary &vocab, const list<image>
    }
 
    classifier cls = fact.create_classifier();
-
-   for (list<image>::const_iterator image = images.begin(); image != images.end(); image++) {
-      cv::Mat grayscale_image = cv::imread(image->getFile(), CV_LOAD_IMAGE_GRAYSCALE);
-
-      detector.detect(grayscale_image, keypoints);
-      extractor.compute(grayscale_image, keypoints, descriptors);
-      std::vector<double> feature_vector = 
-       bof.feature_vector(keypoints, descriptors);
-      float label = cls.classify(feature_vector); 
-      std::cout << label << " " << image->getLabel() << std::endl;
-   }
-
    return cls;
 }
 
 /**
  * Gets all images in a directory then computes all of the features and the
  * descriptors for each image. Each descriptor is then compared to each visual
- * word in the provided visual vocabulary to create a feature vector. 
+ * word in the provided visual vocabulary to create a feature vector. The feature
+ * vectors are each used to train a classifier.
  */ 
 int main(int argc, char **argv) {
-   if (argc < 2 || argc > 2) { usage(argv[0]); return 0; }
+   if (argc < 3 || argc > 4) { usage(argv[0]); return 0; }
+
    list<string> images = get_files_recursive(argv[1], ".png");
 
    // get the label for each image
@@ -129,12 +94,27 @@ int main(int argc, char **argv) {
       image_categories.push_back(image(*im, label));
    }
 
-   visual_vocabulary vocab = generate_visual_vocab(images);
+   // Load the visual vocabulary
+   visual_vocabulary vocab;
+   std::fstream fs;
+   fs.open(argv[2], std::fstream::in);
+   boost::archive::text_iarchive ia(fs);
+   ia >> vocab;
+
+   // Create the classifier
    classifier cls = generate_classifier(vocab, image_categories);
+
+   // Save the classifier
+   if (argc > 3) {
+      std::fstream fs;
+      fs.open(argv[3], std::fstream::out);
+      boost::archive::text_oarchive oa(fs);
+      oa << cls;
+   }
 }
 
 // Display usage information
 void usage(const string &program) {
-   cout << "Usage: " << program << " path/to/images" << endl;
+   cout << "Usage: " << program << " path/to/images vocab.vv [classifier.cls]" << endl;
 }
 

@@ -12,11 +12,15 @@ set( CMAKE_CXX_FLAGS "-std=c++11" )
 file ( GLOB CV_SOURCES src/cv/*.cpp )
 file ( GLOB ML_SOURCES src/ml/*.cpp )
 
-add_executable( visual_vocabulary src/visual_vocabulary.cpp ${CV_SOURCES} )
+# Examples
+add_executable( visual_vocabulary example/visual_vocabulary.cpp ${CV_SOURCES} )
 target_link_libraries( visual_vocabulary ${OpenCV_LIBS} ${Boost_LIBRARIES} )
 
-add_executable( classifier src/classifier.cpp ${CV_SOURCES} ${ML_SOURCES} )
+add_executable( classifier example/classifier.cpp ${CV_SOURCES} ${ML_SOURCES} )
 target_link_libraries( classifier ${OpenCV_LIBS} ${Boost_LIBRARIES} )
+
+add_executable( classify example/classify.cpp ${CV_SOURCES} ${ML_SOURCES} )
+target_link_libraries( classify ${OpenCV_LIBS} ${Boost_LIBRARIES} )
 
 
 # Tests

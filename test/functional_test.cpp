@@ -20,6 +20,8 @@
 
 #include <UnitTest++.h>
 
+#include <fstream>
+
 using namespace std;
 
 list<string> images;
@@ -114,6 +116,20 @@ TEST(CheckVisualVocabulary) {
    visual_vocabulary vocab = vv_fact.compute_visual_vocabulary(visual_vocabulary::settings());
 
    CHECK(row_standard_deviation(vocab.centroids) > 0.1);
+
+   // Save the visual vocab
+   std::fstream fs;
+   fs.open("/tmp/test.vv", std::fstream::out);
+   boost::archive::text_oarchive oa(fs);
+   oa << vocab; 
+   fs.close();
+   
+   // Load the visual vocab
+   fs.open("/tmp/test.vv", std::fstream::in);
+   boost::archive::text_iarchive ia(fs);
+   ia >> vocab;
+ 
+   CHECK(row_standard_deviation(vocab.centroids) > 0.1);
 }
 
 
@@ -207,6 +223,24 @@ TEST(ClassifierResponses) {
    classifier cls = fact.create_classifier(settings); 
    
    vector<float> responses = cls.classify(fact.samples);
+   for (int i = 0; i < responses.size(); i++) {
+      CHECK(i == responses[i]);
+   }
+
+   // Save the classifier
+   std::fstream fs;
+   fs.open("/tmp/test.cls", std::fstream::out);
+   boost::archive::text_oarchive oa(fs);
+   oa << cls; 
+   fs.close();
+   
+   // Load the classifier
+   fs.open("/tmp/test.cls", std::fstream::in);
+   boost::archive::text_iarchive ia(fs);
+   ia >> cls;
+   
+   // Make sure the classifier still works
+   responses = cls.classify(fact.samples);
    for (int i = 0; i < responses.size(); i++) {
       CHECK(i == responses[i]);
    }

@@ -14,7 +14,7 @@ void classifier::train() {
 }
 
 
-float classifier::classify(const std::vector<double> &vector) {
+float classifier::classify(const std::vector<double> &vector) const {
    cv::Mat temp(1, vector.size(), CV_32F);
    for (int i = 0; i < vector.size(); i++) {
       temp.at<float>(i, 0) = vector[i];
@@ -24,7 +24,7 @@ float classifier::classify(const std::vector<double> &vector) {
 }
 
 
-std::vector<float> classifier::classify(const cv::Mat &samples) {
+std::vector<float> classifier::classify(const cv::Mat &samples) const {
    cv::Mat results(samples.rows, 1, CV_32F);
    nearest_neighbors.find_nearest(samples, my_settings.neighbors, &results);
 
